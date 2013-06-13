@@ -2,7 +2,11 @@ import urllib2 as url
 import re
 
 infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
+
+# query data from infoURL
 data = url.urlopen(infoURL).read().decode('big5')
+
+# parser data inside NextLevel tag
 requestList = []
 for l in re.findall(r'NextLevel\(\'(.*?)\'\)', data, re.M):
     requestList.append(l.split(','))
@@ -17,4 +21,5 @@ for l in re.findall(r'NextLevel\(\'(.*?)\'\)', data, re.M):
 
 # save data use OID
 
+# misc
 # [l.split(',') for l in re.findall(r'showdata\((.*?)\)', data, re.M)]
