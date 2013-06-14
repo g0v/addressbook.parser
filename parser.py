@@ -1,5 +1,6 @@
 import urllib2 as url
 import re
+import csv
 
 infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
 
@@ -17,6 +18,16 @@ for line in re.findall(r'NextLevel\((.*?)\)', data, re.M):
 
 # get strcut
 # sDn, sLevel, sTitle
+parameter = {}
+for tuple in csv.reader(requestList, delimiter=',', quotechar='\''):
+    # if __debug__:
+    #     print tuple
+    parameter.setdefault('sDn', tuple[0])
+    parameter.setdefault('sLevel', tuple[1])
+    parameter.setdefault('sTitle', tuple[2])
+
+if __debug__:
+    print parameter
 
 # request to http://oid.nat.gov.tw/infobox1/personmain.jsp
 # parameter sTitle sDn sLevel sDn
