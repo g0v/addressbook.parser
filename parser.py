@@ -16,18 +16,21 @@ for line in re.findall(r'NextLevel\((.*?)\)', data, re.M):
         print "input %s: %s" % (type(utf_line), utf_line)
     requestList.append(utf_line)
 
+# remove first one, that is not data
+del requestList[0]
+
 # get strcut
 # sDn, sLevel, sTitle
-parameter = {}
+questList = []
 for tuple in csv.reader(requestList, delimiter=',', quotechar='\''):
-    # if __debug__:
-    #     print tuple
-    parameter.setdefault('sDn', tuple[0])
-    parameter.setdefault('sLevel', tuple[1])
-    parameter.setdefault('sTitle', tuple[2])
+    if __debug__:
+        print tuple
+    questList.append({'sDn': tuple[0],
+                      'sLevel': tuple[1],
+                      'sTitle': tuple[2]})
 
 if __debug__:
-    print parameter
+    print (len(questList), questList)
 
 # request to http://oid.nat.gov.tw/infobox1/personmain.jsp
 # parameter sTitle sDn sLevel sDn
