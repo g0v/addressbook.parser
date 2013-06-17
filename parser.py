@@ -1,6 +1,6 @@
 import urllib2 as url
 import re
-import csv
+from csv import reader
 
 infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
 
@@ -22,7 +22,7 @@ del requestList[0]
 # get strcut
 # sDn, sLevel, sTitle
 questList = []
-for tuple in csv.reader(requestList, delimiter=',', quotechar='\''):
+for tuple in reader(requestList, delimiter=',', quotechar='\''):
     if __debug__:
         print tuple
     questList.append({'sDn': tuple[0],
