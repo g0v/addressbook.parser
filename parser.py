@@ -23,11 +23,19 @@ del requestList[0]
 # sDn, sLevel, sTitle
 questList = []
 for tuple in reader(requestList, delimiter=',', quotechar='\''):
+
+    dict = {}
+    for foo in re.findall( '(\w)=(.*)',tuple[0].split(',')[0], re.M):
+        dict[foo[0]] = foo[1]
+
+    dict['sLevel'] = tuple[1]
+    dict['sTitle'] = tuple[2]
+
+    questList.append(dict)
+
     if __debug__:
-        print tuple
-    questList.append({'sDn': tuple[0],
-                      'sLevel': tuple[1],
-                      'sTitle': tuple[2]})
+        print dict
+
 
 if __debug__:
     print (len(questList), questList)
