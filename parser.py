@@ -22,14 +22,17 @@ del requestList[0]
 # get strcut
 # sDn, sLevel, sTitle
 questList = []
-for tuple in reader(requestList, delimiter=',', quotechar='\''):
+for line in reader(requestList, delimiter=',', quotechar='\''):
 
     dict = {}
-    for foo in re.findall( '(\w)=(.*)',tuple[0].split(',')[0], re.M):
-        dict[foo[0]] = foo[1]
 
-    dict['sLevel'] = tuple[1]
-    dict['sTitle'] = tuple[2]
+    # decode o=abcd,c=TW or l=abcd,c=TW
+    for params in line[0].split(','):
+        for foo in re.findall(r'(\w)=(.*)',params, re.M):
+            dict[foo[0]] = foo[1]
+
+    dict['sLevel'] = line[1]
+    dict['sTitle'] = line[2]
 
     questList.append(dict)
 
