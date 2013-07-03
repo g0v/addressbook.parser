@@ -5,8 +5,15 @@ from csv import reader
 def main():
     infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
 
-    # query data from infoURL
-    response = url.urlopen(infoURL)
+    try:
+        # query data from infoURL
+        response = url.urlopen(infoURL)
+    except url.URLError, e:
+        print 'Open url (%s) failed : %s' % (infoURL, e)
+        return
+    except ValueError, e:
+        print '%s' % e
+        return
 
     info = response.info()
     if _is_big5_charset(info.plist):
@@ -26,27 +33,37 @@ def main():
     # remove first one, that is not data
     del requestList[0]
 
-    # get strcut
-    # sDn, sLevel, sTitle
     questList = []
     for line in reader(requestList, delimiter=',', quotechar='\''):
 
-        dict = {}
-
-        # decode o=abcd,c=TW or l=abcd,c=TW
-        for params in line[0].split(','):
-            for foo in re.findall(r'(\w)=(.*)', params, re.M):
-                dict[foo[0]] = foo[1]
-
-        dict['sLevel'] = line[1]
-        dict['sTitle'] = line[2]
-
-        questList.append(dict)
-
+        # fetch struct : sDn, sLevel, sTitle
+        item_dict = _fetch_struct(line)
         if __debug__:
-            print dict
+            print item_dict
+
+        questList.append(item_dict)
 
     return questList
+
+
+def _fetch_struct(data):
+    """
+    item_dict :{ sDn    : data_1,
+                   sLevel : data_2,
+                   sTitle : data_3
+                 }
+    """
+    item_dict = {}
+
+    # decode o=abcd,c=TW or l=abcd,c=TW
+    for params in data[0].split(','):
+        for foo in re.findall(r'(\w)=(.*)', params, re.M):
+            item_dict[foo[0]] = foo[1]
+
+    item_dict['sLevel'] = data[1]
+    item_dict['sTitle'] = data[2]
+
+    return item_dict
 
 
 def _is_big5_charset(plist):
