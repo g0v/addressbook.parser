@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
+
 import urllib2 as url
 from urllib import urlencode
 import re
 from csv import reader
 
+DATA_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
+
 def main():
     infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
-    dataURL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 
     try:
         # query data from infoURL
@@ -17,11 +20,11 @@ def main():
         print '%s' % e
         return
 
-    info = response.info()
-    if _is_big5_charset(info.plist):
-        web_data = response.read().decode('big5')
-    else:
-        web_data = response.read()
+    web_data = _get_response_data(response)
+
+    param_list = _collect_showdata_param(web_data)
+
+    raw_data_list = _collect_showdata_response(param_list)
 
     # parser data inside NextLevel tag
     # NextLevel(\'l=\u9ad8\u96c4\u5e02,c=TW\',2,\'\u9ad8\u96c4\u5e02\')
@@ -50,8 +53,34 @@ def main():
 
     # save data use OID
     for one_quest in questList:
-        print _fetch_data(dataURL, one_quest)
+        print _fetch_data(DATA_URL, one_quest)
         break
+
+
+def _collect_showdata_param(data):
+    param_list = []
+    param_pat = re.compile(r'javascript:showdata\(\'(?P<PARAM>\S*)\'\)')
+
+    for match in re.finditer(param_pat, data):
+        param = match.group('PARAM')
+        param_list.append(param)
+
+    return param_list
+
+
+def _collect_showdata_response(param_list):
+    assert isinstance(param_list, list)
+
+    data_list = []
+    for param in param_list:
+        encode_data = urlencode({'sSdn':param.encode('big5')})
+        request = url.Request('http://oid.nat.gov.tw/infobox1/showdata.jsp', encode_data)
+        response = url.urlopen(request)
+
+        raw_data = response.read()
+        data_list.append(raw_data)
+
+    return data_list
 
 
 def _fetch_struct(data):
@@ -74,6 +103,16 @@ def _fetch_struct(data):
     return item_dict
 
 
+def _get_response_data(response):
+    info = response.info()
+    if _is_big5_charset(info.plist):
+        raw_data = response.read().decode('big5')
+    else:
+        raw_data = response.read()
+
+    return raw_data
+
+
 def _is_big5_charset(plist):
     assert isinstance(plist, list)
 
@@ -90,6 +129,7 @@ def _is_big5_charset(plist):
 
         return True
     return False
+
 
 def _fetch_data(base_url, request):
     """
@@ -111,11 +151,7 @@ def _fetch_data(base_url, request):
         print '%s' % e
         return
 
-    info = response.info()
-    if _is_big5_charset(info.plist):
-        raw_data = response.read().decode('big5')
-    else:
-        raw_data = response.read()
+    raw_data = _get_response_data(response)
 
     return raw_data
 
