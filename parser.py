@@ -1,9 +1,11 @@
 import urllib2 as url
+from urllib import urlencode
 import re
 from csv import reader
 
 def main():
     infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
+    dataURL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 
     try:
         # query data from infoURL
@@ -46,10 +48,10 @@ def main():
     if __debug__:
         print (len(questList), questList)
 
-    # request to http://oid.nat.gov.tw/infobox1/personmain.jsp
-    # parameter sTitle sDn sLevel sDn
-
     # save data use OID
+    for one_quest in questList:
+        print _fetch_data(dataURL, one_quest)
+        break
 
 
 def _fetch_struct(data):
@@ -88,6 +90,34 @@ def _is_big5_charset(plist):
 
         return True
     return False
+
+def _fetch_data(base_url, request):
+    """
+    request data from base_url
+    use GET to do it
+    parameter sTitle sDn sLevel sDn
+    """
+    big5_request = {}
+    big5_request['sSdn'] = request['sTitle'].decode('utf-8').encode('big5')
+
+    params = urlencode(big5_request)
+    data_url = "%s?%s" % (url, params)
+    try:
+        response = url.urlopen(data_url)
+    except url.URLError, e:
+        print 'Open url (%s) failed : %s' % (data_url, e)
+        return
+    except ValueError, e:
+        print '%s' % e
+        return
+
+    info = response.info()
+    if _is_big5_charset(info.plist):
+        raw_data = response.read().decode('big5')
+    else:
+        raw_data = response.read()
+
+    return raw_data
 
 if __name__ == '__main__':
     main()
