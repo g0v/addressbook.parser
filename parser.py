@@ -5,6 +5,8 @@ from urllib import urlencode
 import re
 from csv import reader
 
+from org_info_parser import OrgInformation
+
 DATA_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 
 def main():
@@ -25,6 +27,11 @@ def main():
     param_list = _collect_showdata_param(web_data)
 
     raw_data_list = _collect_showdata_response(param_list)
+
+    info_list = []
+    for raw_data in raw_data_list:
+        org_info = OrgInformation(raw_data)
+        info_list.append(org_info)
 
     # parser data inside NextLevel tag
     # NextLevel(\'l=\u9ad8\u96c4\u5e02,c=TW\',2,\'\u9ad8\u96c4\u5e02\')
@@ -86,9 +93,9 @@ def _collect_showdata_response(param_list):
 def _fetch_struct(data):
     """
     item_dict :{ sDn    : data_1,
-                   sLevel : data_2,
-                   sTitle : data_3
-                 }
+                 sLevel : data_2,
+                 sTitle : data_3
+               }
     """
     item_dict = {}
 
