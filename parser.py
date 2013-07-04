@@ -43,7 +43,13 @@ def main():
 
         questList.append(item_dict)
 
-    return questList
+    if __debug__:
+        print (len(questList), questList)
+
+    # request to http://oid.nat.gov.tw/infobox1/personmain.jsp
+    # parameter sTitle sDn sLevel sDn
+
+    # save data use OID
 
 
 def _fetch_struct(data):
@@ -84,16 +90,4 @@ def _is_big5_charset(plist):
     return False
 
 if __name__ == '__main__':
-    questList = main()
-
-    if __debug__:
-        print (len(questList), questList)
-
-
-# request to http://oid.nat.gov.tw/infobox1/personmain.jsp
-# parameter sTitle sDn sLevel sDn
-
-# save data use OID
-
-# misc
-# [l.split(',') for l in re.findall(r'showdata\((.*?)\)', data, re.M)]
+    main()
