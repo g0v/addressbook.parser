@@ -101,7 +101,7 @@ def _fetch_data(base_url, request):
     big5_request['sSdn'] = request['sTitle'].decode('utf-8').encode('big5')
 
     params = urlencode(big5_request)
-    data_url = "%s?%s" % (url, params)
+    data_url = "%s?%s" % (base_url, params)
     try:
         response = url.urlopen(data_url)
     except url.URLError, e:
