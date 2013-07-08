@@ -6,10 +6,9 @@ from csv import reader
 
 from org_info_parser import OrgInformation
 
-DATA_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
-
 def main():
     infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
+    data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 
     try:
         # query data from infoURL
@@ -25,7 +24,7 @@ def main():
 
     param_list = _collect_showdata_param(web_data)
 
-    raw_data_list = _collect_showdata_response(param_list)
+    raw_data_list = _collect_showdata_response(data_URL, param_list)
 
     org_info = OrgInformation()
     for raw_data in raw_data_list:
@@ -47,13 +46,13 @@ def _collect_showdata_param(data):
     return param_list
 
 
-def _collect_showdata_response(param_list):
+def _collect_showdata_response(data_URL, param_list):
     assert isinstance(param_list, list)
 
     data_list = []
     for param in param_list:
         encode_data = urlencode({'sSdn':param.encode('big5')})
-        request = url.Request(DATA_URL, encode_data)
+        request = url.Request(data_URL, encode_data)
         response = url.urlopen(request)
 
         raw_data = response.read()
