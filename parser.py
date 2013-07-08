@@ -36,8 +36,12 @@ def main():
     for info in org_info.get_info_iter():
         oid = info[u'機關OID']
         if oid is not None and len(oid) is not 0:
-            with open("raw_data/%s.json" % (oid), 'wb') as fp:
-                dump(info, fp)
+            _save_to_json(file_name = "raw_data/%s.json" % (oid), data = info)
+
+def _save_to_json(file_name, data):
+
+    with open(file_name, 'wb') as fp:
+        dump(data, fp)
 
 
 def _collect_showdata_param(data):
