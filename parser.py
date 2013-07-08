@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import re
 import urllib2 as url
 from urllib import urlencode
-import re
 from csv import reader
 
 from org_info_parser import OrgInformation
@@ -28,10 +27,14 @@ def main():
 
     raw_data_list = _collect_showdata_response(param_list)
 
-    info_list = []
+    org_info = OrgInformation()
     for raw_data in raw_data_list:
-        org_info = OrgInformation(raw_data)
-        info_list.append(org_info)
+        org_info.parse_data(raw_data)
+
+    # Get org_info data iter
+    for info in org_info.get_info_iter():
+        pass
+
 
     # parser data inside NextLevel tag
     # NextLevel(\'l=\u9ad8\u96c4\u5e02,c=TW\',2,\'\u9ad8\u96c4\u5e02\')
@@ -81,7 +84,7 @@ def _collect_showdata_response(param_list):
     data_list = []
     for param in param_list:
         encode_data = urlencode({'sSdn':param.encode('big5')})
-        request = url.Request('http://oid.nat.gov.tw/infobox1/showdata.jsp', encode_data)
+        request = url.Request(DATA_URL, encode_data)
         response = url.urlopen(request)
 
         raw_data = response.read()
