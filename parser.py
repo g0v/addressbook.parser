@@ -9,14 +9,14 @@ import urllib2 as url
 from org_info_parser import OrgInformation
 
 def main():
-    infoURL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
+    info_URL = 'http://oid.nat.gov.tw/infobox1/personmain.jsp'
     data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 
     try:
         # query data from infoURL
-        response = url.urlopen(infoURL)
+        response = url.urlopen(info_URL)
     except url.URLError, e:
-        print 'Open url (%s) failed : %s' % (infoURL, e)
+        print 'Open url (%s) failed : %s' % (info_URL, e)
         return 1
     except ValueError, e:
         print '%s' % e
@@ -26,7 +26,8 @@ def main():
 
     param_list = _collect_showdata_param(web_data)
 
-    raw_data_list = _collect_showdata_response(data_URL, param_list)
+    raw_data_list = _collect_showdata_response(data_URL = data_URL,
+                                               param_list = param_list)
 
     org_info = OrgInformation()
     for raw_data in raw_data_list:
