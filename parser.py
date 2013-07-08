@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from csv import reader
+from json import dump
+from urllib import urlencode
 import re
 import urllib2 as url
-from urllib import urlencode
-from csv import reader
 
 from org_info_parser import OrgInformation
 
@@ -32,7 +33,10 @@ def main():
 
     # Get org_info data iter
     for info in org_info.get_info_iter():
-        pass
+        oid = info[u'機關OID']
+        if oid is not None and len(oid) is not 0:
+            with open("raw_data/%s" % (oid), 'wb') as fp:
+                dump(info, fp)
 
 
 def _collect_showdata_param(data):
