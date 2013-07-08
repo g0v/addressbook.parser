@@ -36,37 +36,6 @@ def main():
         pass
 
 
-    # parser data inside NextLevel tag
-    # NextLevel(\'l=\u9ad8\u96c4\u5e02,c=TW\',2,\'\u9ad8\u96c4\u5e02\')
-    requestList = []
-    for line in re.findall(r'NextLevel\((.*?)\)', web_data, re.M):
-        utf_line = line.encode('utf-8')
-        if __debug__:
-            print "input %s: %s" % (type(utf_line), utf_line)
-        requestList.append(utf_line)
-
-    # remove first one, that is not data
-    del requestList[0]
-
-    questList = []
-    for line in reader(requestList, delimiter=',', quotechar='\''):
-
-        # fetch struct : sDn, sLevel, sTitle
-        item_dict = _fetch_struct(line)
-        if __debug__:
-            print item_dict
-
-        questList.append(item_dict)
-
-    if __debug__:
-        print (len(questList), questList)
-
-    # save data use OID
-    for one_quest in questList:
-        print _fetch_data(DATA_URL, one_quest)
-        break
-
-
 def _collect_showdata_param(data):
     param_list = []
     param_pat = re.compile(r'javascript:showdata\(\'(?P<PARAM>\S*)\'\)')
