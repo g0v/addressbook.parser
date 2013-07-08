@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from csv import reader
 from json import dump
+from sys import exit
 from urllib import urlencode
 import re
 import urllib2 as url
