@@ -16,10 +16,10 @@ def main():
         response = url.urlopen(infoURL)
     except url.URLError, e:
         print 'Open url (%s) failed : %s' % (infoURL, e)
-        return
+        return 1
     except ValueError, e:
         print '%s' % e
-        return
+        return 1
 
     web_data = _get_response_data(response)
 
@@ -138,4 +138,4 @@ def _fetch_data(base_url, request):
     return raw_data
 
 if __name__ == '__main__':
-    main()
+    exit(main())
