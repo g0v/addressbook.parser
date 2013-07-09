@@ -49,6 +49,11 @@ def _save_to_json(file_name, data):
 
 
 def _collect_showdata_param(data):
+    """
+    find request param in data
+    this will find special param, like "javascript:showdata(<PARAM>)"
+    """
+
     param_list = []
     param_pat = re.compile(r'javascript:showdata\(\'(?P<PARAM>\S*)\'\)')
 
@@ -60,6 +65,10 @@ def _collect_showdata_param(data):
 
 
 def _collect_showdata_response(data_URL, param_list):
+    """
+    request secound data by data_URL
+    this will use param_list to fetch data, requeset URL must encode by big5
+    """
     assert isinstance(param_list, list)
 
     data_list = []
@@ -76,6 +85,9 @@ def _collect_showdata_response(data_URL, param_list):
 
 def _fetch_struct(data):
     """
+    fetch struct from data
+    data format will be "o=abcd,c=TW" or "l=abcd,c=TW"
+    Then send item_dict out
     item_dict :{ sDn    : data_1,
                  sLevel : data_2,
                  sTitle : data_3
@@ -83,7 +95,6 @@ def _fetch_struct(data):
     """
     item_dict = {}
 
-    # decode o=abcd,c=TW or l=abcd,c=TW
     for params in data[0].split(','):
         for foo in re.findall(r'(\w)=(.*)', params, re.M):
             item_dict[foo[0]] = foo[1]
@@ -95,6 +106,10 @@ def _fetch_struct(data):
 
 
 def _get_response_data(response):
+    """
+    Check response is big5 or not.
+    Than call decode method.
+    """
     info = response.info()
     if _is_big5_charset(info.plist):
         raw_data = response.read().decode('big5')
@@ -105,6 +120,9 @@ def _get_response_data(response):
 
 
 def _is_big5_charset(plist):
+    """
+    Check charset is big5 or not in header
+    """
     assert isinstance(plist, list)
 
     big5_set_list = ['big5', 'ms950', 'cp950']
