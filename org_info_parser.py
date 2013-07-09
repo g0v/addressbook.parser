@@ -14,7 +14,7 @@ class OrgInformation(object):
         for match in re.finditer(self._parse_pat, row_data):
             name = match.group('NAME')
             value = match.group('VALUE')
-            info_dict[name.decode('big5')] = value.decode('big5')
+            info_dict[name] = value
 
         if not info_dict:
             return

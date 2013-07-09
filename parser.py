@@ -65,7 +65,7 @@ def _collect_showdata_response(data_URL, param_list):
         request = url.Request(data_URL, encode_data)
         response = url.urlopen(request)
 
-        raw_data = response.read()
+        raw_data = _get_response_data(response)
         data_list.append(raw_data)
 
     return data_list
