@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from csv import reader
 from json import dump
 from sys import exit
 from urllib import urlencode
@@ -38,6 +37,7 @@ def main():
         oid = info[u'機關OID']
         if oid is not None and len(oid) is not 0:
             _save_to_json(file_name = "raw_data/%s.json" % (oid), data = info)
+
 
 def _save_to_json(file_name, data):
 
