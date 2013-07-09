@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from json import dump
+from json import dumps
 from sys import exit
 from urllib import urlencode
 import re
@@ -40,9 +40,12 @@ def main():
 
 
 def _save_to_json(file_name, data):
+    """
+    Save data to json format, this will use file_name to save
+    """
 
-    with open(file_name, 'wb') as fp:
-        dump(data, fp)
+    with open(file_name, 'w') as f:
+        f.write(dumps(data, ensure_ascii = False))
 
 
 def _collect_showdata_param(data):
