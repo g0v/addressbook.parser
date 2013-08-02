@@ -4,6 +4,7 @@ from sys import exit
 from urllib import urlencode
 import re
 import urllib2 as url
+import codecs 
 
 from org_info_parser import OrgInformation
 
@@ -44,7 +45,7 @@ def _save_to_json(file_name, data):
     Save data to json format, this will use file_name to save
     """
 
-    with open(file_name, 'w') as f:
+    with codecs.open(file_name, 'w', 'utf-8') as f:
         f.write(dumps(data, ensure_ascii = False))
 
 
@@ -165,4 +166,4 @@ def _fetch_data(base_url, request):
     return raw_data
 
 if __name__ == '__main__':
-    exit(main())
+    main()
