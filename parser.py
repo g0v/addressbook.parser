@@ -4,7 +4,7 @@ from sys import exit
 from urllib import urlencode
 import re
 import urllib2 as url
-import codecs 
+import codecs
 
 from org_info_parser import OrgInformation
 
@@ -34,10 +34,11 @@ def main():
         org_info.parse_data(raw_data)
 
     # Get org_info data iter
+    data = []
     for info in org_info.get_info_iter():
-        oid = info[u'機關OID']
-        if oid is not None and len(oid) is not 0:
-            _save_to_json(file_name = "raw_data/%s.json" % (oid), data = info)
+        data.append(info)
+
+    _save_to_json(file_name = "raw_data/oid.nat.gov.tw.json", data = data)
 
 
 def _save_to_json(file_name, data):
@@ -46,7 +47,7 @@ def _save_to_json(file_name, data):
     """
 
     with codecs.open(file_name, 'w', 'utf-8') as f:
-        f.write(dumps(data, ensure_ascii = False))
+        f.write(dumps(data, ensure_ascii = False, indent=4))
 
 
 def _collect_showdata_param(data):
