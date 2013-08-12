@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from json import dumps
-from sys import exit
 from urllib import urlencode
 import re
 import urllib2 as url
@@ -52,7 +51,7 @@ def _save_to_json(file_name, data):
 
 def _collect_showdata_param(data):
     """
-    find request param in data
+    find request  param in showdata
     this will find special param, like "javascript:showdata(<PARAM>)"
     """
 
@@ -65,6 +64,21 @@ def _collect_showdata_param(data):
 
     return param_list
 
+
+def _collect_nextlevel_param(data):
+    """
+    find request param in nextlevel
+    this will find special param, like "javascript:NextLevel(<PARAM>)"
+    """
+
+    param_list = []
+    param_pat = re.compile(r'javascript:NextLevel\(\'(?P<PARAM>\S*)\'\)')
+
+    for match in re.finditer(param_pat, data):
+        param = match.group('PARAM')
+        param_list.append(param)
+
+    return param_list
 
 def _collect_showdata_response(data_URL, param_list):
     """
