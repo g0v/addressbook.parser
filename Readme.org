@@ -1,5 +1,5 @@
 * Taiwan government addressbook
-  provided contect detail of government
+  provided organization contact of government
 
 * License
 ** data
