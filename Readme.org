@@ -1,5 +1,5 @@
 * Taiwan government addressbook
-** provided contect detail of government
+  provided contect detail of government
 
 * License
   CC-0
