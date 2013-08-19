@@ -1,5 +1,5 @@
-* 政府公開通訊錄
-  提供政府單位通訊電話
+* Taiwan government addressbook
+** provided contect detail of government
 
 * License
   CC-0
