@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from scrapy import log
 from scrapy.spider import BaseSpider
+from scrapy.http import Request
+from urllib import urlencode
 import re
 
 class OIDSpiders(BaseSpider):
@@ -20,7 +22,7 @@ class OIDSpiders(BaseSpider):
         web_data = self._get_response_data(response)
         param_list = self._collect_showdata_param(web_data)
         raw_data_list = self._collect_showdata_response(data_URL = self.data_URL,
-                                                   param_list = param_list)
+                                                        param_list = param_list)
 
         for raw_data in raw_data_list:
             self.parse_data(raw_data)
@@ -37,30 +39,22 @@ class OIDSpiders(BaseSpider):
         Check response is big5 or not.
         Than call decode method.
         """
-        info = response.info()
-        if self._is_big5_charset(info.plist):
-            raw_data = response.read().decode('big5')
+        if self._is_big5_charset(response.encoding):
+            raw_data = response.body.decode('big5')
         else:
-            raw_data = response.read()
+            raw_data = response.body
 
         return raw_data
 
 
-    def _is_big5_charset(self, plist):
+    def _is_big5_charset(self, encoding):
         """
-        Check charset is big5 or not in header
+        Check charset is big5 or not
         """
-        assert isinstance(plist, list)
-
         big5_set_list = ['big5', 'ms950', 'cp950']
-        re_pat = re.compile('charset=(?P<CODE>\S*)')
 
-        for item in plist:
-            m = re_pat.match(item)
-            if not m:
-                continue
-
-            if m.group('CODE').lower() not in big5_set_list:
+        for item in encoding:
+            if encoding not in big5_set_list:
                 continue
 
             return True
@@ -93,10 +87,9 @@ class OIDSpiders(BaseSpider):
         data_list = []
         for param in param_list:
             encode_data = urlencode({'sSdn':param.encode('big5')})
-            request = url.Request(data_URL, encode_data)
-            response = url.urlopen(request)
+            request = Request(data_URL, encode_data)
 
-            raw_data = _get_response_data(response)
+            raw_data = self._get_response_data(request)
             data_list.append(raw_data)
 
         return data_list
