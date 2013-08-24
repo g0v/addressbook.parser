@@ -1,0 +1,47 @@
+{
+  "author": "superbil",
+  "status": "pre-alpha",
+  "name": "g0v-addressbook",
+  "name": "政府公開通訊錄",
+  "description": "provided organization contact of government",
+  "description_zh": "政府單位的公開聯絡資訊、包含立法委員及其他政府官員",
+  "document": "https://g0v.hackpad.com/g6v6MpyacFb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/g0v/addressbook"
+  },
+  "licenses": [
+    {
+      "type": "CC0"
+    }
+  ],
+  "keywords": [
+    "addressbook",
+    "contant",
+    "python",
+    "json",
+    "json-ld",
+    "popolo",
+    "organization"
+  ],
+  "audience": [
+    "contributor"
+  ],
+  "products": [
+    "api",
+    "data"
+  ],
+  "projects": [
+    "addressbook",
+    "kuansim"
+  ],
+  "contributors": [
+    "superbil",
+    "iamll1",
+    "hychen"
+  ],
+  "needs": [
+    "designer",
+    "programmer"
+  ]
+}
