@@ -5,6 +5,7 @@
   "name": "政府公開通訊錄",
   "description": "provided organization contact of government",
   "description_zh": "政府單位的公開聯絡資訊、包含立法委員及其他政府官員",
+  "homepage": "https://github.com/g0v/addressbook",
   "document": "https://g0v.hackpad.com/g6v6MpyacFb",
   "repository": {
     "type": "git",
