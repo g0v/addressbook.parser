@@ -2,6 +2,7 @@
 from scrapy import log
 from scrapy.spider import BaseSpider
 from scrapy.http import Request
+from scrapy.selector import HtmlXPathSelector
 from urllib import urlencode
 import re
 
@@ -20,9 +21,10 @@ class OIDSpiders(BaseSpider):
     def parse(self, response):
         self.log('A response from %s' % response.url)
         web_data = self._get_response_data(response)
-        param_list = self._collect_showdata_param(web_data)
+        hxs = HtmlXPathSelector(response)
+        show_data_param_list = hxs.select("//td/a/@href").re(r'javascript:showdata\(\'(?P<PARAM>\S*)\'\)')
         raw_data_list = self._collect_showdata_response(data_URL = self.data_URL,
-                                                        param_list = param_list)
+                                                        param_list = show_data_param_list)
 
         for raw_data in raw_data_list:
             self.parse_data(raw_data)
@@ -59,22 +61,6 @@ class OIDSpiders(BaseSpider):
 
             return True
         return False
-
-
-    def _collect_showdata_param(self, data):
-        """
-        find request  param in showdata
-        this will find special param, like "javascript:showdata(<PARAM>)"
-        """
-
-        param_list = []
-        param_pat = re.compile(r'javascript:showdata\(\'(?P<PARAM>\S*)\'\)')
-
-        for match in re.finditer(param_pat, data):
-            param = match.group('PARAM')
-            param_list.append(param)
-
-        return param_list
 
 
     def _collect_showdata_response(self, data_URL, param_list):
