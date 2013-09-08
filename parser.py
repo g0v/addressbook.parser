@@ -27,6 +27,9 @@ def main():
 
     raw_data_list = _collect_showdata_response(data_URL = data_URL,
                                                param_list = param_list)
+    # print '--'.join(param_list)
+    # print raw_data_list
+    # return 0
 
     org_info = OrgInformation()
     for raw_data in raw_data_list:
