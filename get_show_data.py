@@ -5,6 +5,7 @@ import shelve
 import codecs
 import socket
 import urllib2
+from urllib import urlencode
 from json import dumps
 from retry_decorator import retry
 from org_info_parser import OrgInformation
@@ -17,6 +18,39 @@ def save_to_json(file_name, data):
     """
     with codecs.open(file_name, 'w', 'utf-8') as f:
         f.write(dumps(data, ensure_ascii = False, indent=4))
+
+def get_response_data(response):
+    """
+    Check response is big5 or not.
+    Than call decode method.
+    """
+    info = response.info()
+    if _is_big5_charset(info.plist):
+        raw_data = response.read().decode('big5')
+    else:
+        raw_data = response.read()
+
+    return raw_data
+
+def _is_big5_charset(plist):
+    """
+    Check charset is big5 or not in header
+    """
+    assert isinstance(plist, list)
+
+    big5_set_list = ['big5', 'ms950', 'cp950']
+    re_pat = re.compile('charset=(?P<CODE>\S*)')
+
+    for item in plist:
+        m = re_pat.match(item)
+        if not m:
+            continue
+
+        if m.group('CODE').lower() not in big5_set_list:
+            continue
+
+        return True
+    return False
 
 def collect_showdata_param(data):
     """ find request param in showdata
@@ -33,21 +67,21 @@ def showdata(data_URL, param):
     """
     request = urllib2.Request(data_URL, param)
     response = urllib2.urlopen(request)
-    return response.read().decode('big5')
+    return get_response_data(response)
 
 def walk(d, output, level):
     for i in d.keys():
-        param = collect_showdata_param(eval(i)[1])
-        if __debug__:
-            print '\t'*level + "%s" % (param)
+        show_data = collect_showdata_param(eval(i)[1])
+        if show_data:
+            param = {'sSdn' : show_data.decode('utf-8').encode('big5')}
+            param_encode = urlencode(param)
+            if __debug__:
+                print '\t'*level + "sSdn : %s" % (show_data)
 
-        data = showdata(data_URL, param)
+            data = showdata(data_URL, param_encode)
 
-        if __debug__:
-            print data
-
-        output.append(data)
-        walk(d[i], output, level+1)
+            output.append(data)
+            walk(d[i], output, level+1)
 
 def main(f):
     oid = shelve.open(f)['oid']
