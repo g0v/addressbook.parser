@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """
 grab entire oid list and save them with python shelve
 """
@@ -10,6 +10,7 @@ import urllib
 import re
 import shelve
 import time
+from retry_decorator import retry
 from BeautifulSoup import BeautifulSoup
 
 socket.setdefaulttimeout(10)
@@ -28,6 +29,7 @@ time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
 oid_shelve = shelve.open('raw_data/oid_shelve_%s.db' % time_str)
 oid = {}
 
+@retry((urllib2.URLError,socket.timeout))
 def get_page(d = None):
     req = urllib2.Request(url = url, data = d)
     resp = urllib2.urlopen(req)
@@ -75,4 +77,3 @@ if __name__ == "__main__":
         main()
     except:
         import IPython; IPython.embed()
-
