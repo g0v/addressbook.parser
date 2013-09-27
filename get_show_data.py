@@ -5,8 +5,8 @@ import shelve
 import codecs
 import socket
 import urllib2
-from urllib import urlencode
 from json import dumps
+from urllib import urlencode
 from retry_decorator import retry
 from org_info_parser import OrgInformation
 
@@ -71,21 +71,23 @@ def showdata(data_URL, param):
 
 def walk(d, output, level):
     for i in d.keys():
-        show_data = collect_showdata_param(eval(i)[1])
-        if show_data:
-            param = {'sSdn' : show_data.decode('utf-8').encode('big5')}
-            param_encode = urlencode(param)
+        param = collect_showdata_param(eval(i)[1])
+        if param:
             if __debug__:
-                print '\t'*level + "sSdn : %s" % (show_data)
+                print '\t'*level + "sSdn : %s" % (param)
 
-            data = showdata(data_URL, param_encode)
+            try:
+                encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
+                data = showdata(data_URL, encode_param)
+                output.setdefault('success',[]).append(data)
+            except UnicodeDecodeError:
+                output.setdefault('failed_decode',[]).append(param)
 
-            output.append(data)
             walk(d[i], output, level+1)
 
 def main(f):
     oid = shelve.open(f)['oid']
-    raw_data_list = []
+    raw_data_list = {}
 
     walk(oid, raw_data_list, 0)
 
