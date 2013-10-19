@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import time
 import re
@@ -61,7 +63,13 @@ def collect_showdata_param(data):
     for match in re.finditer(param_pat, data):
         return match.group('PARAM')
 
-@retry((urllib2.URLError,socket.timeout))
+def collect_goverment(data):
+    g = re.compile(r'[ol]=(?P<GOVERNMENT>\S*),c=TW')
+
+    for match in re.finditer(g, data):
+        return match.group('GOVERNMENT')
+
+@retry((socket.timeout))
 def showdata(data_URL, param):
     """ request show_data on data_URL with param
     """
@@ -69,30 +77,36 @@ def showdata(data_URL, param):
     response = urllib2.urlopen(request)
     return get_response_data(response)
 
-def walk(d, output, level):
+def walk_oid(d, mapping, output, level):
     for i in d.keys():
         param = collect_showdata_param(eval(i)[1])
         if param:
-            if __debug__:
-                print '\t'*level + "sSdn : %s" % (param)
+            gov = collect_goverment(param)
 
-            try:
-                encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
-                data = showdata(data_URL, encode_param)
-                output.setdefault('success',[]).append(data)
-            except UnicodeDecodeError:
-                output.setdefault('failed_decode',[]).append(param)
+            if gov in mapping:
 
-            walk(d[i], output, level+1)
+                if __debug__:
+                    print '\t'*level + "sSdn : %s" % (param)
+
+                try:
+                    encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
+                    output.setdefault('success_decode',[]).append(encode_param)
+                except UnicodeDecodeError:
+                    output.setdefault('failed_decode',[]).append(param)
+
+                walk_oid(d[i], mapping, output, level+1)
 
 def main(f):
     oid = shelve.open(f)['oid']
     raw_data_list = {}
+    root_list = ['監察院', '考試院', '行政院', '總統府', '立法院', '司法院',
+                 '國家安全會議', '國民大會']
 
-    walk(oid, raw_data_list, 0)
+    walk_oid(oid, root_list, raw_data_list, 0)
 
     org_info = OrgInformation()
-    for raw_data in raw_data_list:
+    for encode_param in raw_data_list['success_decode']:
+        raw_data = showdata(data_URL, encode_param)
         org_info.parse_data(raw_data)
 
     # Get org_info data iter
