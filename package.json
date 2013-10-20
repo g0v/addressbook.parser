@@ -1,0 +1,18 @@
+{
+  "name": "addressbook",
+  "version": "0.0.1",
+  "author": "",
+  "keywords": ["addressbook"],
+  "description": "AddressBook",
+  "licenses": [{
+    "type": "",
+    "url": ""
+  }],
+  "dependencies": {
+    "node-uuid": "x.x.x"
+  },
+  "engines": {
+    "node": ">= 0.10.3",
+    "npm": ">= 1.1.x"
+  }
+}
