@@ -116,8 +116,11 @@ def main(db_path, oid_path):
 
     walk_oid(oid, raw_data_list, oid_data, 0)
 
+    roc = { 'name' : u'中華民國政府',
+            'oid' : u'2.16.886.101',
+            'children' : raw_data_list }
     save_to_json(file_name = "raw_data/oid.all.tree_%s.json" %(time_str),
-                 data = raw_data_list)
+                 data = roc)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
