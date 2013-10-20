@@ -24,14 +24,14 @@ fs.readFile file, 'utf8', (err, raw) ->
     raw = JSON.parse raw
     data = []
     map = {}
-    index = 0
+    # index = 0
 
     for x in raw
         name = x.機關名稱
         parent = x.上層機關
         org =
-            # id: do uuid.v1
-            id: "#{index++}"
+            id: do uuid.v1
+            # id: "#{index++}"
             # ref: x
             name: name
             other_names: []
