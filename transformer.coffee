@@ -56,13 +56,13 @@ fs.readFile file, 'utf8', (err, raw) ->
         data.push org
         org.identifiers.push "schema": "Distinguished Name", "identitfier": x.機關DN
         org.identifiers.push "schema": "OID"               , "identitfier": x.機關OID        
-        org.contact_details.push label: "TEL", type: "voice"      , value: x.機關電話, source: ""
-        org.contact_details.push label: "TEL", type: "tax"        , value: x.機關傳真, source: ""
-        org.contact_details.push label: "URL", type: "home"       , value: x.機關網址, source: ""
-        org.contact_details.push label: "ADR", type: ""           , value: x.機關地址, source: ""
-        org.contact_details.push label: "ADR", type: "postal code", value: x.郵遞區號, source: ""
-        org.contact_details.push label: "UID", type: ""           , value: x.機關代號, source: ""
-        org.contact_details.push label: "EMAIL", type: ""         , value: x.機關email, source: ""
+        org.contact_details.push label: "機關電話", type: "voice"      , value: x.機關電話, source: ""
+        org.contact_details.push label: "機關傳真", type: "tax"        , value: x.機關傳真, source: ""
+        org.contact_details.push label: "機關網址", type: "url"        , value: x.機關網址, source: ""
+        org.contact_details.push label: "機關地址", type: "address"    , value: x.機關地址, source: ""
+        org.contact_details.push label: "郵遞區號", type: "postcode"   , value: x.郵遞區號, source: ""
+        org.contact_details.push label: "機關代號", type: "uid"        , value: x.機關代號, source: ""
+        org.contact_details.push label: "機關email", type: "email"    , value: x.機關email, source: ""
 
     for x in data
         if x.parent_id != ""
