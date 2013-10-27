@@ -13,14 +13,17 @@ from urllib import urlencode
 from retry_decorator import retry
 from org_info_parser import OrgInformation
 
+
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
+
 
 def save_to_json(file_name, data):
     """ Save data to json format, this will use file_name to save
     """
     with codecs.open(file_name, 'w', 'utf-8') as f:
         f.write(dumps(data, ensure_ascii = False, indent=4))
+
 
 def get_response_data(response):
     """
@@ -34,6 +37,7 @@ def get_response_data(response):
         raw_data = response.read()
 
     return raw_data
+
 
 def _is_big5_charset(plist):
     """
@@ -55,6 +59,7 @@ def _is_big5_charset(plist):
         return True
     return False
 
+
 def collect_showdata_param(data):
     """ find request param in showdata
     this will find special param, like "javascript:showdata(<PARAM>)"
@@ -64,11 +69,13 @@ def collect_showdata_param(data):
     for match in re.finditer(param_pat, data):
         return match.group('PARAM')
 
+
 def collect_goverment(data):
     g = re.compile(r'[ol]=(?P<GOVERNMENT>\S*),c=TW')
 
     for match in re.finditer(g, data):
         return match.group('GOVERNMENT')
+
 
 @retry((socket.timeout))
 def showdata(data_URL, param):
@@ -82,19 +89,22 @@ def find_info(oid_data, name):
     """ find info in oid_data for name
     """
     for info in oid_data:
-        if info[u'機關DN'] == name.decode('utf-8'):
+        if info[u'機關 DN'] == name.decode('utf-8'):
             return info
 
     return None
 
+
 def walk_oid(d, output, oid_data, level):
+    """ walking l in d
+    """
     for i in d.keys():
         param = collect_showdata_param(eval(i)[1])
         if param:
             info = find_info(oid_data, param)
             if info:
                 name = info[u'機關名稱']
-                oid = info[u'機關OID']
+                oid = info[u'機關 OID']
 
                 if __debug__:
                     print "\t" * level + "%s %s" % (name, oid)
@@ -111,6 +121,7 @@ def walk_oid(d, output, oid_data, level):
 
                 output.append(data)
 
+
 def main(db_path, oid_path):
     oid = shelve.open(db_path)['oid']
     raw_data_list = []
@@ -123,6 +134,7 @@ def main(db_path, oid_path):
             'children' : raw_data_list }
     save_to_json(file_name = "raw_data/oid.all.tree_%s.json" %(time_str),
                  data = roc)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:

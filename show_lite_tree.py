@@ -19,6 +19,7 @@ def save_to_json(file_name, data):
     with codecs.open(file_name, 'w', 'utf-8') as f:
         f.write(json.dumps(data, ensure_ascii = False, indent=4))
 
+
 def get_response_data(response):
     """
     Check response is big5 or not.
@@ -31,6 +32,7 @@ def get_response_data(response):
         raw_data = response.read()
 
     return raw_data
+
 
 def _is_big5_charset(plist):
     """
@@ -52,6 +54,7 @@ def _is_big5_charset(plist):
         return True
     return False
 
+
 def collect_showdata_param(data):
     """ find request param in showdata
     this will find special param, like "javascript:showdata(<PARAM>)"
@@ -61,11 +64,13 @@ def collect_showdata_param(data):
     for match in re.finditer(param_pat, data):
         return match.group('PARAM')
 
+
 def collect_goverment(data):
     g = re.compile(r'[ol]=(?P<GOVERNMENT>\S*),c=TW')
 
     for match in re.finditer(g, data):
         return match.group('GOVERNMENT')
+
 
 @retry((socket.timeout))
 def showdata(data_URL, param):
@@ -75,6 +80,7 @@ def showdata(data_URL, param):
     response = urllib2.urlopen(request)
     return get_response_data(response)
 
+
 def find_info(oid_data, name):
     """ find info in oid_data for name
     """
@@ -82,7 +88,10 @@ def find_info(oid_data, name):
         if info[u'機關DN'] == name.decode('utf-8'):
             return info
 
+
 def walk_oid(d, mapping, output, oid_data, level):
+    """ walking l in d and check l is also in mapping
+    """
     for i in d.keys():
         param = collect_showdata_param(eval(i)[1])
         if param:
@@ -109,6 +118,7 @@ def walk_oid(d, mapping, output, oid_data, level):
 
                 output.append(data)
 
+
 def main(db_path, oid_path):
     oid = shelve.open(db_path)['oid']
     raw_data_list = []
@@ -123,6 +133,7 @@ def main(db_path, oid_path):
             'children' : raw_data_list }
     save_to_json(file_name = "raw_data/oid.lite.tree_%s.json" %(time_str),
                  data = roc)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:

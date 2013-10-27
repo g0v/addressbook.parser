@@ -1,3 +1,21 @@
+''' oid_shelve db struct
+{ 'oid' = { ['n1', 's1'] : child_n1, ... } }
+
+one item:
+['NextLevelValue', 'ShowDataValue']
+
+nested dictionary:
+{
+    'oid' = { ['NextLevelValue_1', 'ShowDataValue_1'] : child_items,
+              ['NextLevelValue_2', 'ShowDataValue_2'] : {
+                  ['NextLevelValue_2_1', 'ShowDataValue_2_1'] : None
+                  },
+              ...
+            }
+}
+
+'''
+
 import shelve
 import sys
 
@@ -16,4 +34,3 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     main(sys.argv[1])
-
