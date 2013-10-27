@@ -7,11 +7,12 @@ import shelve
 import codecs
 import socket
 import urllib2
-from json import dumps
 import json
+import uniout
 from urllib import urlencode
 from retry_decorator import retry
 from org_info_parser import OrgInformation
+# grequest
 
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
@@ -20,7 +21,7 @@ def save_to_json(file_name, data):
     """ Save data to json format, this will use file_name to save
     """
     with codecs.open(file_name, 'w', 'utf-8') as f:
-        f.write(dumps(data, ensure_ascii = False, indent=4))
+        f.write(json.dumps(data, ensure_ascii = False, indent=4))
 
 def get_response_data(response):
     """
@@ -28,12 +29,16 @@ def get_response_data(response):
     Than call decode method.
     """
     info = response.info()
-    if _is_big5_charset(info.plist):
-        raw_data = response.read().decode('big5')
-    else:
-        raw_data = response.read()
+    raw_data = response.read()
 
-    return raw_data
+    if not _is_big5_charset(info.plist):
+        return raw_data
+
+    try:
+        big5_data = raw_data.decode('big5')
+        return big5_data
+    except UnicodeDecodeError:
+        return raw_data
 
 def _is_big5_charset(plist):
     """
@@ -87,46 +92,47 @@ def find_info(oid_data, name):
 
     return None
 
-def walk_oid(d, output, oid_data, level):
+def walk_oid(d, output, check_source, level):
     for i in d.keys():
         param = collect_showdata_param(eval(i)[1])
         if param:
-            info = find_info(oid_data, param)
-            if info:
-                name = info[u'機關名稱']
-                oid = info[u'機關OID']
+            gov = collect_goverment(param)
+
+            if not find_info(check_source, param):
 
                 if __debug__:
-                    print "\t" * level + "%s %s" % (name, oid)
+                    print '\t'*level + "sSdn : %s" % (param)
 
-                children = []
+                try:
+                    encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
+                    output.setdefault('success_decode',[]).append(encode_param)
+                except UnicodeDecodeError:
+                    output.setdefault('failed_decode',[]).append(param)
 
-                walk_oid(d[i], children, oid_data, level+1)
+                walk_oid(d[i], output, check_source, level+1)
 
-                data = {}
-                data.setdefault('name',name)
-                data.setdefault('oid',oid)
-                if len(children) is not 0:
-                    data.setdefault('children',children)
+def main(db_file, append_source):
+    oid = shelve.open(db_file)['oid']
+    raw_data_list = {}
+    append_oid = json.load(open(append_source))
 
-                output.append(data)
+    walk_oid(oid, raw_data_list, append_oid, 0)
 
-def main(db_path, oid_path):
-    oid = shelve.open(db_path)['oid']
-    raw_data_list = []
-    oid_data = json.load(open(oid_path))
+    org_info = OrgInformation()
+    for encode_param in raw_data_list['success_decode']:
+        raw_data = showdata(data_URL, encode_param)
+        org_info.parse_data(raw_data)
 
-    walk_oid(oid, raw_data_list, oid_data, 0)
+    # Get org_info data iter
+    for info in org_info.get_info_iter():
+        append_oid.append(info)
 
-    roc = { 'name' : u'中華民國政府',
-            'oid' : u'2.16.886.101',
-            'children' : raw_data_list }
-    save_to_json(file_name = "raw_data/oid.all.tree_%s.json" %(time_str),
-                 data = roc)
+    save_to_json(file_name = "raw_data/oid.nat.gov.tw_%s.json" %(time_str),
+                 data = append_oid)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: ./%s <oid_shelve file> <oid_raw_data.js>" % (sys.argv[0])
+        print "Usage: ./%s <oid_shelve_db> <append_source>" % (sys.argv[0])
         sys.exit(-1)
 
-    main(sys.argv[1],sys.argv[2])
+    main(sys.argv[1], sys.argv[2])
