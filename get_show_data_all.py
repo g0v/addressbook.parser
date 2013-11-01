@@ -102,42 +102,41 @@ def showdata(data_URL, param):
     response = urllib2.urlopen(request)
     return get_response_data(response)
 
-def find_info(oid_data, name):
-    """ find info in oid_data for name
-    """
-    for info in oid_data:
-        if info[u'機關DN'] == name.decode('utf-8'):
-            return info
 
-    return None
-
-
-def walk_oid(d, output, check_source, level):
-    for i in d.keys():
+def walk_oid(d, output, oid_loaded_set, level):
+    for i in d:
         show_data = eval(i)[SHOW_DATA]
+
         param = collect_showdata_param(show_data)
-        if param:
-            gov = collect_goverment(param)
+        if not param:
+            continue
 
-            if not find_info(check_source, param):
+        if __debug__:
+            print '    ' * level + 'sSdn : %s' % param
 
-                if __debug__:
-                    print '\t'*level + "sSdn : %s" % (param)
+        try:
+            utf8_param = param.decode('utf-8')
+            if utf8_param in oid_loaded_set:
+                continue
 
-                try:
-                    encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
-                    output.setdefault('success_decode',[]).append(encode_param)
-                except UnicodeDecodeError:
-                    output.setdefault('failed_decode',[]).append(param)
+            encode_param = urlencode({'sSdn': utf8_param.encode('big5')})
+            output.setdefault('success_decode', []).append(encode_param)
 
-                walk_oid(d[i], output, check_source, level+1)
+        except UnicodeDecodeError:
+            if __debug__:
+                print 'error: cannot decode utf-8 param -- [%s]' % param
+            output.setdefault('failed_decode', []).append(param)
+
+        walk_oid(d[i], output, oid_loaded_set, level+1)
+
 
 def main(db_file, append_source):
     oid = shelve.open(db_file)['oid']
     raw_data_list = {}
     append_oid = json.load(open(append_source))
+    oid_loaded_set = set([info[u'機關DN'] for info in append_oid])
 
-    walk_oid(oid, raw_data_list, append_oid, 0)
+    walk_oid(oid, raw_data_list, oid_loaded_set, 0)
 
     org_info = OrgInformation()
     for encode_param in raw_data_list['success_decode']:
