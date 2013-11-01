@@ -14,6 +14,19 @@ from retry_decorator import retry
 from org_info_parser import OrgInformation
 # grequest
 
+
+SHOW_DATA = 1
+
+SHOW_DATA_PATTERN = re.compile(
+    r"""
+        show(Unit)?data
+        \('
+        (?P<PARAM>[^']*)
+        '\)
+    """,
+    re.VERBOSE
+)
+
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
 
@@ -60,14 +73,20 @@ def _is_big5_charset(plist):
         return True
     return False
 
+
 def collect_showdata_param(data):
     """ find request param in showdata
     this will find special param, like "javascript:showdata(<PARAM>)"
     """
-    param_pat = re.compile(r'showdata\(\'(?P<PARAM>\S*)\'\)')
+    m = SHOW_DATA_PATTERN.search(data)
+    if m:
+        return m.group('PARAM')
 
-    for match in re.finditer(param_pat, data):
-        return match.group('PARAM')
+    # error
+    if __debug__:
+        print 'error: cannot parse showdata -- [%s]' % data
+    return ''
+
 
 def collect_goverment(data):
     g = re.compile(r'[ol]=(?P<GOVERNMENT>\S*),c=TW')
@@ -92,9 +111,11 @@ def find_info(oid_data, name):
 
     return None
 
+
 def walk_oid(d, output, check_source, level):
     for i in d.keys():
-        param = collect_showdata_param(eval(i)[1])
+        show_data = eval(i)[SHOW_DATA]
+        param = collect_showdata_param(show_data)
         if param:
             gov = collect_goverment(param)
 
