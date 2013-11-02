@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pprint
 import sys
 import time
 import re
@@ -11,7 +12,7 @@ import json
 #import uniout
 from urllib import urlencode
 from retry_decorator import retry
-from org_info_parser import OrgInformation
+import org_info_parser
 # grequest
 
 
@@ -94,11 +95,11 @@ def collect_goverment(data):
     for match in re.finditer(g, data):
         return match.group('GOVERNMENT')
 
-@retry((socket.timeout))
-def showdata(data_URL, param):
-    """ request show_data on data_URL with param
+@retry(socket.timeout)
+def request_data(url, param):
+    """ request data on url with param
     """
-    request = urllib2.Request(data_URL, param)
+    request = urllib2.Request(url, param)
     response = urllib2.urlopen(request)
     return get_response_data(response)
 
@@ -138,15 +139,15 @@ def main(db_file, append_source):
 
     walk_oid(oid, raw_data_list, oid_loaded_set, 0)
 
-    org_info = OrgInformation()
+    info_list = []
     for encode_param in raw_data_list['success_decode']:
-        raw_data = showdata(data_URL, encode_param)
-        org_info.parse_data(raw_data)
+        raw_data = request_data(data_URL, encode_param)
+        info = org_info_parser.parse_org_info(raw_data)
+        if __debug__:
+            pprint.pprint(info)
+        info_list.append(info)
 
-    # Get org_info data iter
-    for info in org_info.get_info_iter():
-        append_oid.append(info)
-
+    append_oid += info_list
     save_to_json(file_name = "raw_data/oid.nat.gov.tw_%s.json" %(time_str),
                  data = append_oid)
 
