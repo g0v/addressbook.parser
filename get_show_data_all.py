@@ -8,7 +8,7 @@ import codecs
 import socket
 import urllib2
 import json
-import uniout
+#import uniout
 from urllib import urlencode
 from retry_decorator import retry
 from org_info_parser import OrgInformation
