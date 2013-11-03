@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pprint
 import sys
 import time
 import re
@@ -8,11 +9,24 @@ import codecs
 import socket
 import urllib2
 import json
-import uniout
+#import uniout
 from urllib import urlencode
 from retry_decorator import retry
-from org_info_parser import OrgInformation
+import org_info_parser
 # grequest
+
+
+SHOW_DATA = 1
+
+SHOW_DATA_PATTERN = re.compile(
+    r"""
+        show(Unit)?data
+        \('
+        (?P<PARAM>[^']*)
+        '\)
+    """,
+    re.VERBOSE
+)
 
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
@@ -60,14 +74,20 @@ def _is_big5_charset(plist):
         return True
     return False
 
+
 def collect_showdata_param(data):
     """ find request param in showdata
     this will find special param, like "javascript:showdata(<PARAM>)"
     """
-    param_pat = re.compile(r'showdata\(\'(?P<PARAM>\S*)\'\)')
+    m = SHOW_DATA_PATTERN.search(data)
+    if m:
+        return m.group('PARAM')
 
-    for match in re.finditer(param_pat, data):
-        return match.group('PARAM')
+    # error
+    if __debug__:
+        print 'error: cannot parse showdata -- [%s]' % data
+    return ''
+
 
 def collect_goverment(data):
     g = re.compile(r'[ol]=(?P<GOVERNMENT>\S*),c=TW')
@@ -75,58 +95,59 @@ def collect_goverment(data):
     for match in re.finditer(g, data):
         return match.group('GOVERNMENT')
 
-@retry((socket.timeout))
-def showdata(data_URL, param):
-    """ request show_data on data_URL with param
+@retry(socket.timeout)
+def request_data(url, param):
+    """ request data on url with param
     """
-    request = urllib2.Request(data_URL, param)
+    request = urllib2.Request(url, param)
     response = urllib2.urlopen(request)
     return get_response_data(response)
 
-def find_info(oid_data, name):
-    """ find info in oid_data for name
-    """
-    for info in oid_data:
-        if info[u'機關DN'] == name.decode('utf-8'):
-            return info
 
-    return None
+def walk_oid(d, output, oid_loaded_set, level):
+    for i in d:
+        show_data = eval(i)[SHOW_DATA]
 
-def walk_oid(d, output, check_source, level):
-    for i in d.keys():
-        param = collect_showdata_param(eval(i)[1])
-        if param:
-            gov = collect_goverment(param)
+        param = collect_showdata_param(show_data)
+        if not param:
+            continue
 
-            if not find_info(check_source, param):
+        if __debug__:
+            print '    ' * level + 'sSdn : %s' % param
 
-                if __debug__:
-                    print '\t'*level + "sSdn : %s" % (param)
+        try:
+            utf8_param = param.decode('utf-8')
+            if utf8_param in oid_loaded_set:
+                continue
 
-                try:
-                    encode_param = urlencode({'sSdn':param.decode('utf-8').encode('big5')})
-                    output.setdefault('success_decode',[]).append(encode_param)
-                except UnicodeDecodeError:
-                    output.setdefault('failed_decode',[]).append(param)
+            encode_param = urlencode({'sSdn': utf8_param.encode('big5')})
+            output.setdefault('success_decode', []).append(encode_param)
 
-                walk_oid(d[i], output, check_source, level+1)
+        except UnicodeDecodeError:
+            if __debug__:
+                print 'error: cannot decode utf-8 param -- [%s]' % param
+            output.setdefault('failed_decode', []).append(param)
+
+        walk_oid(d[i], output, oid_loaded_set, level+1)
+
 
 def main(db_file, append_source):
     oid = shelve.open(db_file)['oid']
     raw_data_list = {}
     append_oid = json.load(open(append_source))
+    oid_loaded_set = set([info[u'機關DN'] for info in append_oid])
 
-    walk_oid(oid, raw_data_list, append_oid, 0)
+    walk_oid(oid, raw_data_list, oid_loaded_set, 0)
 
-    org_info = OrgInformation()
+    info_list = []
     for encode_param in raw_data_list['success_decode']:
-        raw_data = showdata(data_URL, encode_param)
-        org_info.parse_data(raw_data)
+        raw_data = request_data(data_URL, encode_param)
+        info = org_info_parser.parse_org_info(raw_data)
+        if __debug__:
+            pprint.pprint(info)
+        info_list.append(info)
 
-    # Get org_info data iter
-    for info in org_info.get_info_iter():
-        append_oid.append(info)
-
+    append_oid += info_list
     save_to_json(file_name = "raw_data/oid.nat.gov.tw_%s.json" %(time_str),
                  data = append_oid)
 
