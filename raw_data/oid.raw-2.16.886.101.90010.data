@@ -1,0 +1,94 @@
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+<style TYPE="text/css">
+<!--
+.eiptitle {  font-size: 11pt; color: #FFFFFF}
+.eip9pt {  font-size: 9pt; height: 14pt;}
+.eip11pt { font-size: 11pt; color: #000000 }
+.eipbutton { font-size:9pt;width:60; background-color:0066CC;color:FFFFFF; border: 2 solid; border-color: #cccccc #000000 #000000 #cccccc }
+a:visited {  color: #0000FF; text-decoration: none; font-size: 9pt}
+a:hover {  color: #FF0000; text-decoration: underline; font-size: 9pt}
+a:link {  color: #0000FF; text-decoration: none; font-size: 9pt}
+BODY
+{scrollbar-face-color: #FFFFFF;
+ scrollbar-shadow-color: #000066; scrollbar-highlight-color: #000066;
+ scrollbar-3dlight-color: #FFFFFF; scrollbar-darkshadow-color: #FFFFFF;
+ scrollbar-track-color: #FFFFFF; scrollbar-arrow-color: 000066}
+-->
+</style>
+<body background="/images/01/bluebg.gif" leftmargin="5" topmargin="5" class="eip9pt">
+
+<center>
+<table width="400" cellspacing="0" cellpadding="2" border="1" bordercolor="#FFFFFF" class="eip9pt">
+
+
+	
+	
+	
+		
+		 <tr>
+		    <td bgcolor="#0066CC" colspan="2" class="eiptitle"><b>
+		    	彰化縣
+		    </td>
+		 </tr>
+		 <tr>
+			<td bgcolor="#AACCFF" align="center">機關代號</td>
+			<td colspan=1 width="70%"></td>
+		</tr>	
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關OID</td>
+			<td>2.16.886.101.90010</td>
+		</tr>
+		<tr>
+			<td bgcolor="#AACCFF" align="center">上層機關</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關名稱</td>
+			<td colspan=1 width="70%">彰化縣</td>
+		</tr>	
+		<tr>
+			<td bgcolor="#AACCFF" align="center">郵遞區號</td>
+			<td colspan=1 width="70%"></td>
+		</tr>		
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關地址</td>
+			<td colspan=1 width="70%"></td>
+		</tr>	
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關電話</td>
+			<td colspan=1 width="70%"></td>
+		</tr>	
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關傳真</td>
+			<td colspan=1 width="70%"></td>
+		</tr>	
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關email</td>
+			<td colspan=1 width="70%"></td>
+		</tr>				
+		<tr>
+			<td bgcolor="#AACCFF" align="center">機關DN</td>
+			<td colspan=1 width="70%">l=彰化縣,c=TW</td>
+		</tr>	
+	
+	
+
+</table>
+<p>
+
+
+<input type="button" value="關 閉" Onclick="javascript:window.close();">
