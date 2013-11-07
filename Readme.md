@@ -37,6 +37,13 @@ provided organization contact of government
     |-- oid_shelve.db                   <!-- source data of oid.nat.gov.tw -->
     `-- orgcode.txt                     <!-- another oid code list -->
 
+## Deploy data
+
+```
+$ npm install firebase-import
+$  ./node_modules/firebase-import/bin/firebase-import.js -j raw_data/oid.nat.gov.tw.popolo.org.json -f g0v-who.firebaseio.com
+```
+
 ## License
 
 ### data
