@@ -40,4 +40,3 @@ class OrgInformation(object):
         for info in self._info_list:
             yield info
         raise StopIteration
-

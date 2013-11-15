@@ -89,7 +89,7 @@ function update(source) {
   // Normalize for fixed-depth.
   nodes.forEach(function(d) { d.y = d.depth * 180; });
 
-  // Update the nodes…
+  // Update the nodes …
   var node = svg.selectAll("g.node")
       .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
@@ -175,7 +175,7 @@ function update(source) {
   nodeExit.select("text")
       .style("fill-opacity", 1e-6);
 
-  // Update the links…
+  // Update the links …
   var link = svg.selectAll("path.link")
       .data(links, function(d) { return d.target.id; });
 
@@ -223,4 +223,3 @@ function click(d) {
 }
 
 </script>
-
