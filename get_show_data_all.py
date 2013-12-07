@@ -31,11 +31,13 @@ SHOW_DATA_PATTERN = re.compile(
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
 
+
 def save_to_json(file_name, data):
     """ Save data to json format, this will use file_name to save
     """
     with codecs.open(file_name, 'w', 'utf-8') as f:
-        f.write(json.dumps(data, ensure_ascii = False, indent=4))
+        f.write(json.dumps(data, ensure_ascii=False, indent=4))
+
 
 def get_response_data(response):
     """
@@ -53,6 +55,7 @@ def get_response_data(response):
         return big5_data
     except UnicodeDecodeError:
         return raw_data
+
 
 def _is_big5_charset(plist):
     """
@@ -94,6 +97,7 @@ def collect_goverment(data):
 
     for match in re.finditer(g, data):
         return match.group('GOVERNMENT')
+
 
 @retry(socket.timeout)
 def request_data(url, param):
@@ -148,8 +152,8 @@ def main(db_file, append_source):
         info_list.append(info)
 
     append_oid += info_list
-    save_to_json(file_name = "raw_data/oid.nat.gov.tw_%s.json" %(time_str),
-                 data = append_oid)
+    save_to_json(file_name="raw_data/oid.nat.gov.tw_%s.json" % (time_str),
+                 data=append_oid)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:

@@ -111,10 +111,10 @@ def walk_oid(d, mapping, output, oid_data, level):
                 walk_oid(d[i], mapping, children, oid_data, level+1)
 
                 data = {}
-                data.setdefault('name',name)
-                data.setdefault('oid',oid)
+                data.setdefault('name', name)
+                data.setdefault('oid', oid)
                 if len(children) is not 0:
-                    data.setdefault('children',children)
+                    data.setdefault('children', children)
 
                 output.append(data)
 
@@ -128,10 +128,10 @@ def main(db_path, oid_path):
 
     walk_oid(oid, root_list, raw_data_list, oid_data, 0)
 
-    roc = { 'name' : u'中華民國政府',
-            'oid' : u'2.16.886.101',
-            'children' : raw_data_list }
-    save_to_json(file_name = "raw_data/oid.lite.tree_%s.json" %(time_str),
+    roc = {'name': u'中華民國政府',
+           'oid': u'2.16.886.101',
+           'children': raw_data_list}
+    save_to_json(file_name = "raw_data/oid.lite.tree_%s.json" % (time_str),
                  data = roc)
 
 
@@ -140,4 +140,4 @@ if __name__ == '__main__':
         print "Usage: ./%s <oid_shelve file> <oid_raw_data.js>" % (sys.argv[0])
         sys.exit(-1)
 
-    main(sys.argv[1],sys.argv[2])
+    main(sys.argv[1], sys.argv[2])
