@@ -9,11 +9,9 @@ import codecs
 import socket
 import urllib2
 import json
-#import uniout
 from urllib import urlencode
 from retry_decorator import retry
 import org_info_parser
-# grequest
 
 
 SHOW_DATA = 1
