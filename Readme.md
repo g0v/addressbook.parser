@@ -4,6 +4,10 @@ provided organization contact of government
 
 ![addressbook on travis-ci](https://travis-ci.org/g0v/addressbook.png)
 
+## Status
+
+this project is in alpha
+
 ## Useage
 
 * clone project
