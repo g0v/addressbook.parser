@@ -2,7 +2,7 @@
 
 provided organization contact of government
 
-![addressbook on travis-ci](https://travis-ci.org/g0v/addressbook.png)
+![addressbook status on travis-ci](https://travis-ci.org/g0v/addressbook.png)
 
 ## Status
 
