@@ -20,9 +20,11 @@ this project is in alpha
 
 * demo tree
 
-    use browser to open it
+    * use browser to open it
 
         $ open front-end.html
+
+    * [demo link at github io](http://g0v.github.io/addressbook/)
 
 ## Documents
 
