@@ -60,7 +60,7 @@ def build_oid_org_map(oid_tree_json):
 
 
 def self_test():
-    oid_tree_json = 'raw_data/oid.tree.lite.json'
+    oid_tree_json = '../raw_data/oid.tree.lite.json'
 
     oo_map = build_oid_org_map(oid_tree_json)
     assert isinstance(oo_map, OidOrgMap)

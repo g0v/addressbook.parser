@@ -11,7 +11,7 @@ import uniout
 import oid_org_map
 
 
-OID_TREE_JSON = 'raw_data/oid.tree.lite.json'
+OID_TREE_JSON = '../raw_data/oid.tree.lite.json'
 
 # year, code, amount, name, topname, depname, depcat, cat, ref
 # 0     1     2       3     4        5        6       7    8
