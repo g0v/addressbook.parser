@@ -6,7 +6,7 @@ import org_info_parser
 
 HTML_PAGE_PATH = os.path.join(
     os.path.dirname(__file__),
-    '../raw_data/oid.raw-2.16.886.101.90010.data'
+    '../../raw_data/oid.raw-2.16.886.101.90010.data'
 )
 
 
