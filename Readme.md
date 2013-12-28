@@ -16,7 +16,7 @@ this project is in alpha
 
 * list all government tree
 
-        $ python show_oid_shelve.py raw_data/oid_shelve.db
+        $ python show_data/show_oid_shelve.py raw_data/oid_shelve.db
 
 * demo tree
 
