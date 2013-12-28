@@ -26,7 +26,7 @@ head = {'sLevel': '1',
     # 'sDn': 'o=總統府,c=TW'.decode('utf8').encode('big5')}
 
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
-oid_shelve = shelve.open('raw_data/oid_shelve_%s.db' % time_str)
+oid_shelve = shelve.open('../raw_data/oid_shelve_%s.db' % time_str)
 oid = {}
 
 @retry((urllib2.URLError,socket.timeout))

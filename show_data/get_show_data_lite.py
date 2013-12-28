@@ -114,7 +114,7 @@ def main(f):
     for info in org_info.get_info_iter():
         data.append(info)
 
-    save_to_json(file_name = "raw_data/oid.nat.gov.tw_%s.json" %(time_str),
+    save_to_json(file_name = "../raw_data/oid.nat.gov.tw_%s.json" %(time_str),
                  data = data)
 
 if __name__ == '__main__':

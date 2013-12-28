@@ -150,7 +150,7 @@ def main(db_file, append_source):
         info_list.append(info)
 
     append_oid += info_list
-    save_to_json(file_name="raw_data/oid.nat.gov.tw_%s.json" % (time_str),
+    save_to_json(file_name="../raw_data/oid.nat.gov.tw_%s.json" % (time_str),
                  data=append_oid)
 
 if __name__ == '__main__':

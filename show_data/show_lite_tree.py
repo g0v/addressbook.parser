@@ -131,7 +131,7 @@ def main(db_path, oid_path):
     roc = {'name': u'中華民國政府',
            'oid': u'2.16.886.101',
            'children': raw_data_list}
-    save_to_json(file_name = "raw_data/oid.lite.tree_%s.json" % (time_str),
+    save_to_json(file_name = "../raw_data/oid.lite.tree_%s.json" % (time_str),
                  data = roc)
 
 
