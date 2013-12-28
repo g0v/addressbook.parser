@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 ''' oid_shelve db struct
 { 'oid' = { ['n1', 's1'] : child_n1, ... } }
 
