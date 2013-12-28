@@ -22,7 +22,7 @@ this project is in alpha
 
     * use browser to open it
 
-        $ open front-end.html
+        $ open demo/front-end.html
 
     * [demo link at github io](http://g0v.github.io/addressbook/)
 
