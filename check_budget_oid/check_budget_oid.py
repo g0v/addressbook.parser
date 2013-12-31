@@ -82,6 +82,33 @@ BUDGET_CSV = [
     },
 ]
 
+# match status
+MATCH = 'MATCH'
+PARTIAL_MATCH = 'PARTIAL'
+MISMATCH = 'MISS'
+
+
+class IMatcher(object):
+    def add(self, obj):
+        raise NotImplementedError
+
+    def is_match(self):
+        raise NotImplementedError
+
+
+class ExactMatcher(IMatcher):
+    def __init__(self):
+        self._match_objs = set()
+
+    def add(self, obj):
+        self._match_objs.add(obj)
+
+    def match(self, obj):
+        if obj in self._match_objs:
+            return MATCH
+        else:
+            return MISMATCH
+
 
 # helper functions
 def get_budget(budget_row_data, column_id):
@@ -118,8 +145,8 @@ def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
         yield [unicode(cell, 'utf-8') for cell in row]
 
 
-def check_budget_org(budget, oo_map):
-    assert isinstance(oo_map, oid_org_map.OidOrgMap)
+def check_budget_org(budget, org_matcher):
+    assert isinstance(org_matcher, ExactMatcher)
 
     check_result = []
 
@@ -137,7 +164,7 @@ def check_budget_org(budget, oo_map):
         check_result.append({
             'row': row,
             'line': i,
-            'hit': oo_map.is_known_org(org_name),
+            'match_status': org_matcher.match(org_name),
         })
 
     return check_result
@@ -150,8 +177,10 @@ def show_check_result(budget, check_result):
         org_name = get_budget(row, budget['column_org_name'])
         year = get_budget(row, budget['column_year'])
 
-        if data['hit']:
-            print 'HIT      %s' % org_name.encode('utf-8')
+        if data['match_status'] == MATCH:
+            print 'MATCH    %s' % org_name.encode('utf-8')
+        elif data['match_status'] == PARTIAL_MATCH:
+            print 'PARTIAL  %s' % org_name.encode('utf-8')
         else:
             print 'MISS     %s  (year:%s, line:%s)' % (org_name.encode('utf-8'), year.encode('utf-8'), line)
 
@@ -160,8 +189,12 @@ def main():
     oo_map = oid_org_map.build_oid_org_map(OID_TREE_JSON)
     assert isinstance(oo_map, oid_org_map.OidOrgMap)
 
+    org_matcher = ExactMatcher()
+    for name in oo_map.iter_org_names():
+        org_matcher.add(name)
+
     for budget in BUDGET_CSV:
-        result = check_budget_org(budget, oo_map)
+        result = check_budget_org(budget, org_matcher)
         show_check_result(budget, result)
 
 
