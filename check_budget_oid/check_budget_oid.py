@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import csv
+import difflib
 import pprint
 import urllib2
 
@@ -92,7 +93,7 @@ class IMatcher(object):
     def add(self, obj):
         raise NotImplementedError
 
-    def is_match(self):
+    def match(self, obj):
         raise NotImplementedError
 
 
@@ -105,9 +106,46 @@ class ExactMatcher(IMatcher):
 
     def match(self, obj):
         if obj in self._match_objs:
-            return MATCH
+            return {'match_status': MATCH}
         else:
-            return MISMATCH
+            return {'match_status': MISMATCH}
+
+
+class PartialMatcher(IMatcher):
+    def __init__(self):
+        self._match_objs = set()
+
+    def add(self, obj):
+        self._match_objs.add(obj)
+
+    def match(self, obj):
+        if obj in self._match_objs:
+            # exact match
+            return {'match_status': MATCH}
+
+        # check partial match
+        matcher = difflib.SequenceMatcher()
+        matcher.set_seq1(obj)
+
+        candidates = {}
+        for o in self._match_objs:
+            # use "offset" to control : MORE words (0) prior to LESS words (-1)
+            if obj in o:
+                offset = 0
+            elif o in obj:
+                offset = -1
+            else:
+                continue
+            matcher.set_seq2(o)
+            candidates[o] = offset + matcher.ratio()
+
+        if candidates:
+            return {
+                'match_status': PARTIAL_MATCH,
+                'match_candidates': candidates,
+            }
+        else:
+            return {'match_status': MISMATCH}
 
 
 # helper functions
@@ -146,7 +184,7 @@ def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
 
 
 def check_budget_org(budget, org_matcher):
-    assert isinstance(org_matcher, ExactMatcher)
+    assert isinstance(org_matcher, IMatcher)
 
     check_result = []
 
@@ -161,41 +199,63 @@ def check_budget_org(budget, org_matcher):
 
         org_name = get_budget(row, budget['column_org_name'])
 
+        match_result = org_matcher.match(org_name)
+
         check_result.append({
             'row': row,
             'line': i,
-            'match_status': org_matcher.match(org_name),
+            'org_name': org_name,
+            'year': get_budget(row, budget['column_year']),
+            'match_status': match_result['match_status'],
+            'match_candidates': match_result.get('match_candidates', {}),
         })
 
     return check_result
 
 
-def show_check_result(budget, check_result):
+def get_sort_ratio_candidates(candidates):
+    return sorted(candidates, key=candidates.get, reverse=True)
+
+
+def show_check_result(check_result):
     for data in check_result:
-        row = data['row']
-        line = data['line']
-        org_name = get_budget(row, budget['column_org_name'])
-        year = get_budget(row, budget['column_year'])
+        encode_data = {
+            'row': data['row'],
+            'line': data['line'],
+            'org_name': data['org_name'].encode('utf-8'),
+            'year': data['year'].encode('utf-8'),
+        }
 
         if data['match_status'] == MATCH:
-            print 'MATCH    %s' % org_name.encode('utf-8')
+            fmt = 'MATCH    {org_name}'
         elif data['match_status'] == PARTIAL_MATCH:
-            print 'PARTIAL  %s' % org_name.encode('utf-8')
+            fmt = 'PARTIAL  {org_name}'
         else:
-            print 'MISS     %s  (year:%s, line:%s)' % (org_name.encode('utf-8'), year.encode('utf-8'), line)
+            fmt = '  x      {org_name}  (year:{year}, line:{line})'
+        print fmt.format(**encode_data)
+
+        if data['match_status'] == PARTIAL_MATCH:
+            partial_fmt = '         ({ratio: d}%) {candidate}'
+            for org in get_sort_ratio_candidates(data['match_candidates']):
+                partial_data = {
+                    'candidate': org.encode('utf-8'),
+                    'ratio': int(data['match_candidates'][org] * 100.0),
+                }
+                print partial_fmt.format(**partial_data)
 
 
 def main():
     oo_map = oid_org_map.build_oid_org_map(OID_TREE_JSON)
     assert isinstance(oo_map, oid_org_map.OidOrgMap)
 
-    org_matcher = ExactMatcher()
+    org_matcher = PartialMatcher()
     for name in oo_map.iter_org_names():
         org_matcher.add(name)
 
     for budget in BUDGET_CSV:
         result = check_budget_org(budget, org_matcher)
-        show_check_result(budget, result)
+        #pprint.pprint(result)
+        show_check_result(result)
 
 
 if __name__ == '__main__':
