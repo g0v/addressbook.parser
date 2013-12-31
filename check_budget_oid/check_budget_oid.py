@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import csv
-import difflib
 import pprint
 import urllib2
 
@@ -10,6 +9,7 @@ import uniout
 
 # in-project modules
 import oid_org_map
+import string_matcher
 
 
 OID_TREE_JSON = '../raw_data/oid.tree.lite.json'
@@ -83,69 +83,6 @@ BUDGET_CSV = [
     },
 ]
 
-# match status
-MATCH = 'MATCH'
-PARTIAL_MATCH = 'PARTIAL'
-MISMATCH = 'MISS'
-
-
-class IMatcher(object):
-    def add(self, obj):
-        raise NotImplementedError
-
-    def match(self, obj):
-        raise NotImplementedError
-
-
-class ExactMatcher(IMatcher):
-    def __init__(self):
-        self._match_objs = set()
-
-    def add(self, obj):
-        self._match_objs.add(obj)
-
-    def match(self, obj):
-        if obj in self._match_objs:
-            return {'match_status': MATCH}
-        else:
-            return {'match_status': MISMATCH}
-
-
-class PartialMatcher(IMatcher):
-    def __init__(self):
-        self._match_objs = set()
-
-    def add(self, obj):
-        self._match_objs.add(obj)
-
-    def match(self, obj):
-        if obj in self._match_objs:
-            # exact match
-            return {'match_status': MATCH}
-
-        # check partial match
-        matcher = difflib.SequenceMatcher()
-        matcher.set_seq1(obj)
-
-        candidates = {}
-        for o in self._match_objs:
-            # use "offset" to control : MORE words (0) prior to LESS words (-1)
-            if obj in o:
-                offset = 0
-            elif o in obj:
-                offset = -1
-            else:
-                continue
-            matcher.set_seq2(o)
-            candidates[o] = offset + matcher.ratio()
-
-        if candidates:
-            return {
-                'match_status': PARTIAL_MATCH,
-                'match_candidates': candidates,
-            }
-        else:
-            return {'match_status': MISMATCH}
 
 
 # helper functions
@@ -184,7 +121,7 @@ def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
 
 
 def check_budget_org(budget, org_matcher):
-    assert isinstance(org_matcher, IMatcher)
+    assert isinstance(org_matcher, string_matcher.IMatcher)
 
     check_result = []
 
@@ -226,15 +163,15 @@ def show_check_result(check_result):
             'year': data['year'].encode('utf-8'),
         }
 
-        if data['match_status'] == MATCH:
+        if data['match_status'] == string_matcher.MATCH:
             fmt = 'MATCH    {org_name}'
-        elif data['match_status'] == PARTIAL_MATCH:
+        elif data['match_status'] == string_matcher.PARTIAL_MATCH:
             fmt = 'PARTIAL  {org_name}'
         else:
             fmt = '  x      {org_name}  (year:{year}, line:{line})'
         print fmt.format(**encode_data)
 
-        if data['match_status'] == PARTIAL_MATCH:
+        if data['match_status'] == string_matcher.PARTIAL_MATCH:
             partial_fmt = '         ({ratio: d}%) {candidate}'
             for org in get_sort_ratio_candidates(data['match_candidates']):
                 partial_data = {
@@ -248,7 +185,7 @@ def main():
     oo_map = oid_org_map.build_oid_org_map(OID_TREE_JSON)
     assert isinstance(oo_map, oid_org_map.OidOrgMap)
 
-    org_matcher = PartialMatcher()
+    org_matcher = string_matcher.PartialMatcher()
     for name in oo_map.iter_org_names():
         org_matcher.add(name)
 
