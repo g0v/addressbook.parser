@@ -22,6 +22,10 @@ class OidOrgMap(object):
         self._id_name_map[oid] = name
         self._name_id_map[name] = oid
 
+    def iter_org_names(self):
+        for name in self._name_id_map:
+            yield name
+
     def get_id_org(self, oid):
         return self._id_name_map.get(oid, '')
 

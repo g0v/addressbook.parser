@@ -9,6 +9,7 @@ import uniout
 
 # in-project modules
 import oid_org_map
+import string_matcher
 
 
 OID_TREE_JSON = '../raw_data/oid.tree.lite.json'
@@ -83,6 +84,7 @@ BUDGET_CSV = [
 ]
 
 
+
 # helper functions
 def get_budget(budget_row_data, column_id):
     assert 0 <= column_id < len(budget_row_data)
@@ -118,8 +120,8 @@ def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
         yield [unicode(cell, 'utf-8') for cell in row]
 
 
-def check_budget_org(budget, oo_map):
-    assert isinstance(oo_map, oid_org_map.OidOrgMap)
+def check_budget_org(budget, org_matcher):
+    assert isinstance(org_matcher, string_matcher.IMatcher)
 
     check_result = []
 
@@ -134,35 +136,63 @@ def check_budget_org(budget, oo_map):
 
         org_name = get_budget(row, budget['column_org_name'])
 
+        match_result = org_matcher.match(org_name)
+
         check_result.append({
             'row': row,
             'line': i,
-            'hit': oo_map.is_known_org(org_name),
+            'org_name': org_name,
+            'year': get_budget(row, budget['column_year']),
+            'match_status': match_result['match_status'],
+            'match_candidates': match_result.get('match_candidates', {}),
         })
 
     return check_result
 
 
-def show_check_result(budget, check_result):
-    for data in check_result:
-        row = data['row']
-        line = data['line']
-        org_name = get_budget(row, budget['column_org_name'])
-        year = get_budget(row, budget['column_year'])
+def get_sort_ratio_candidates(candidates):
+    return sorted(candidates, key=candidates.get, reverse=True)
 
-        if data['hit']:
-            print 'HIT      %s' % org_name.encode('utf-8')
+
+def show_check_result(check_result):
+    for data in check_result:
+        encode_data = {
+            'row': data['row'],
+            'line': data['line'],
+            'org_name': data['org_name'].encode('utf-8'),
+            'year': data['year'].encode('utf-8'),
+        }
+
+        if data['match_status'] == string_matcher.MATCH:
+            fmt = 'MATCH    {org_name}'
+        elif data['match_status'] == string_matcher.PARTIAL_MATCH:
+            fmt = 'PARTIAL  {org_name}'
         else:
-            print 'MISS     %s  (year:%s, line:%s)' % (org_name.encode('utf-8'), year.encode('utf-8'), line)
+            fmt = '  x      {org_name}  (year:{year}, line:{line})'
+        print fmt.format(**encode_data)
+
+        if data['match_status'] == string_matcher.PARTIAL_MATCH:
+            partial_fmt = '         ({ratio: d}%) {candidate}'
+            for org in get_sort_ratio_candidates(data['match_candidates']):
+                partial_data = {
+                    'candidate': org.encode('utf-8'),
+                    'ratio': int(data['match_candidates'][org] * 100.0),
+                }
+                print partial_fmt.format(**partial_data)
 
 
 def main():
     oo_map = oid_org_map.build_oid_org_map(OID_TREE_JSON)
     assert isinstance(oo_map, oid_org_map.OidOrgMap)
 
+    org_matcher = string_matcher.PartialMatcher()
+    for name in oo_map.iter_org_names():
+        org_matcher.add(name)
+
     for budget in BUDGET_CSV:
-        result = check_budget_org(budget, oo_map)
-        show_check_result(budget, result)
+        result = check_budget_org(budget, org_matcher)
+        #pprint.pprint(result)
+        show_check_result(result)
 
 
 if __name__ == '__main__':
