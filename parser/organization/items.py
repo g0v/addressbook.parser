@@ -5,56 +5,42 @@
 # http://doc.scrapy.org/en/latest/topics/items.html
 
 from scrapy.item import Item, Field
+'''
+Example data in oid.nat.gov.tw:
+    {
+        "機關DN": "ou=abc,ou=123,o=def,c=TW",
+        "機關傳真": "xx-xxxxx",
+        "機關OID": "x.xx",
+        "上層機關": "PARENT_NAME",
+        "機關電話": "xx-xxxxx",
+        "郵遞區號": "xxx",
+        "機關網址": "http://example.url",
+        "機關代號": "XXXXXXX",
+        "機關email": "xx@mail",
+        "機關地址": "address",
+        "機關名稱": "FULL_NAME"
+    }
+'''
+
 
 class OrganizationItem(Item):
-    # define the fields for your item here like:
-    # name = Field()
-    pass
-
-
-class DGPAItem(Item):
+    ''' an organization item
     '''
-    Example:
-    {"expanded":false,
-    "classes":"folder",
-    "hasChildren":true,
-    "id":"100000000A",
-    "text":"國民大會(100000000A)",
-    "children":null}
-    '''
-    orgID = Field()
-    name = Field()
-    hasChildren = Field()
-    classes = Field()
-
-
-class DGPADetailItem(Item):
-    name = Field()
-    orgID = Field()
-    tel = Field()
-    fax = Field()
-    address = Field()
-    url = Field()
-    email = Field()
-    google_map = Field()
-
-
-class ShowdataItem(Item):
+    # save item source url here
+    source_url = Field()
 
     dn = Field()
-    level = Field()
-    title = Field()
-
-
-class OIDItem(Item):
 
     oid = Field()
-    oid_name = Field()
-    dn = Field()
-    fax = Field()
+    name = Field()
+
+    parent_name = Field()
+
     tel = Field()
-    email = Field()
+    fax = Field()
+
     address = Field()
     postal_address = Field()
-    up_gov = Field()
+
+    email = Field()
     url = Field()
