@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env lsc
 # -*- coding: utf-8 -*-
 
 fs = require 'fs'
