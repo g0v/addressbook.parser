@@ -6,6 +6,7 @@ optimist = require 'optimist'
 fs = require 'fs'
 path = require 'path'
 
+
 argv = require('optimist')
   .usage('Usage: $0')
 
@@ -19,6 +20,7 @@ argv = require('optimist')
 
   .argv
 
+
 file = path.resolve argv.json
 fs.readFile file, 'utf8', (error, raw) ->
    if error
@@ -31,12 +33,10 @@ fs.readFile file, 'utf8', (error, raw) ->
        data."#{o.id}" = o
 
    ## upload to Firebase
-   orgRef = new Firebase(argv.firebase_url)
-
+   orgRef = new Firebase argv.firebase_url
    orgRef.set data, (error) ->
       if error
          console.log "Error: #{error}"
-         process.exit 1
 
       console.log "Upload complete"
-      process.exit 0
+      process.exit if error then 1 else 0
