@@ -46,8 +46,8 @@ this project is in alpha
 ## Deploy data
 
 ```
-$ npm install firebase-import
-$  ./node_modules/firebase-import/bin/firebase-import.js -j raw_data/oid.nat.gov.tw.popolo.org.json -f g0v-who.firebaseio.com
+$ npm install firebase optimist
+$ ./org-to-firebase.ls -j raw_data/oid.nat.gov.tw.popolo.org.json -f https://g0v-org.firebaseio.com/org/
 ```
 
 ## License
