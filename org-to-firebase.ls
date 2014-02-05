@@ -28,9 +28,7 @@ fs.readFile file, 'utf8', (error, raw) ->
       return
 
    data = []
-   raw_list = JSON.parse raw
-   for o in raw_list
-       data."#{o.id}" = o
+   [data."#{o.id}" = o for o in JSON.parse raw]
 
    ## upload to Firebase
    orgRef = new Firebase argv.firebase_url
