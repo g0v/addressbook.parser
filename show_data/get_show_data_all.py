@@ -14,6 +14,10 @@ from urllib import urlencode
 from retry_decorator import retry
 import org_info_parser
 
+try:
+    import uniout
+except ImportError, e:
+    pass
 
 SHOW_DATA = 1
 
