@@ -169,7 +169,9 @@ def main(db_file, append_source):
         info = org_info_parser.parse_org_info(raw_data)
         if __debug__:
             pprint.pprint(info)
-        info_list.append(info)
+
+        if info:
+            info_list.append(info)
 
         if CANCEL:
             break
