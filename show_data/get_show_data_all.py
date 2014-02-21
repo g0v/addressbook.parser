@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import codecs
+import json
 import pprint
-import sys
-import time
 import re
 import shelve
-import codecs
+import signal
 import socket
+import sys
+import time
 import urllib2
-import json
 from urllib import urlencode
 from retry_decorator import retry
 import org_info_parser
@@ -25,6 +26,8 @@ SHOW_DATA_PATTERN = re.compile(
     """,
     re.VERBOSE
 )
+
+CANCEL = False
 
 data_URL = 'http://oid.nat.gov.tw/infobox1/showdata.jsp'
 time_str = time.strftime("%Y%m%dT%H%M%S", time.localtime())
@@ -103,7 +106,12 @@ def request_data(url, param):
     """
     request = urllib2.Request(url, param)
     response = urllib2.urlopen(request)
-    return get_response_data(response)
+
+    global CANCEL
+    if CANCEL:
+        return None
+    else:
+        return get_response_data(response)
 
 
 def walk_oid(d, output, oid_loaded_set, level):
@@ -133,6 +141,12 @@ def walk_oid(d, output, oid_loaded_set, level):
         walk_oid(d[i], output, oid_loaded_set, level+1)
 
 
+def signal_handler(signal, frame):
+    print 'You pressed Ctrl+C cancel work! saving data...'
+    global CANCEL
+    CANCEL = True
+
+
 def main(db_file, append_source):
     oid = shelve.open(db_file)['oid']
     raw_data_list = {}
@@ -141,17 +155,29 @@ def main(db_file, append_source):
 
     walk_oid(oid, raw_data_list, oid_loaded_set, 0)
 
+    print "You can pressed Ctrl+C to cancel"
+    signal.signal(signal.SIGINT, signal_handler)
+
     info_list = []
     for encode_param in raw_data_list['success_decode']:
+        global CANCEL
+
         raw_data = request_data(data_URL, encode_param)
+        if not raw_data and CANCEL:
+            break
+
         info = org_info_parser.parse_org_info(raw_data)
         if __debug__:
             pprint.pprint(info)
         info_list.append(info)
 
+        if CANCEL:
+            break
+
     append_oid += info_list
     save_to_json(file_name="../raw_data/oid.nat.gov.tw_%s.json" % (time_str),
                  data=append_oid)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
