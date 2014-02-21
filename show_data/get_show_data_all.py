@@ -93,7 +93,7 @@ def collect_showdata_param(data):
 
     # error
     if __debug__:
-        print 'error: cannot parse showdata -- [%s]' % data
+        pprint.pprint('error: cannot parse showdata -- [%s]' % data)
     return ''
 
 
@@ -127,7 +127,7 @@ def walk_oid(d, output, oid_loaded_set, level):
             continue
 
         if __debug__:
-            print '    ' * level + 'sSdn : %s' % param
+            pprint.pprint('    ' * level + 'sSdn : %s' % param)
 
         try:
             utf8_param = param.decode('utf-8')
@@ -139,14 +139,14 @@ def walk_oid(d, output, oid_loaded_set, level):
 
         except UnicodeDecodeError:
             if __debug__:
-                print 'error: cannot decode utf-8 param -- [%s]' % param
+                pprint.pprint('error: cannot decode utf-8 param -- [%s]' % param)
             output.setdefault('failed_decode', []).append(param)
 
         walk_oid(d[i], output, oid_loaded_set, level+1)
 
 
 def signal_handler(signal, frame):
-    print 'You pressed Ctrl+C cancel work! saving data...'
+    pprint.pprint('You pressed Ctrl+C cancel work! saving data...')
     global CANCEL
     CANCEL = True
 
@@ -187,7 +187,7 @@ def main(db_file, append_source):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: ./%s <oid_shelve_db> <append_source>" % (sys.argv[0])
+        pprint.pprint("Usage: ./%s <oid_shelve_db> <append_source>" % sys.argv[0])
         sys.exit(-1)
 
     main(sys.argv[1], sys.argv[2])
