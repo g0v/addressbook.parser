@@ -1,7 +1,10 @@
 import difflib
 
 # 3-party modules
-import uniout
+try:
+    import uniout
+except ImportError, e:
+    pass
 
 # match status
 MATCH = 'MATCH'

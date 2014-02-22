@@ -5,7 +5,10 @@ import pprint
 import urllib2
 
 # 3-party modules
-import uniout
+try:
+    import uniout
+except ImportError, e:
+    pass
 
 # in-project modules
 import oid_org_map

@@ -4,7 +4,10 @@ import json
 import pprint
 
 # 3-party module
-import uniout
+try:
+    import uniout
+except ImportError, e:
+    pass
 
 
 DEBUG_OID_ORG_MAP = False
