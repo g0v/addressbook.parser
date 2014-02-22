@@ -3,12 +3,10 @@
 import csv
 import pprint
 import urllib2
+import os
 
 # 3-party modules
-try:
-    import uniout
-except ImportError, e:
-    pass
+#import uniout
 
 # in-project modules
 import oid_org_map
@@ -157,7 +155,15 @@ def get_sort_ratio_candidates(candidates):
     return sorted(candidates, key=candidates.get, reverse=True)
 
 
-def show_check_result(check_result):
+def show_check_result(budget, check_result):
+
+    full_path = budget['csv_url']
+    path_name, file_name = os.path.split(full_path)
+    csvfile = open( file_name + '_compare.csv', 'wb')
+    writer = csv.writer(csvfile, delimiter=',',
+                        quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow( [ 'match', 'percent', 'budget_org_name', 'addressbook_org_name', 'line', 'year']  )
+
     for data in check_result:
         encode_data = {
             'row': data['row'],
@@ -183,6 +189,28 @@ def show_check_result(check_result):
                 }
                 print partial_fmt.format(**partial_data)
 
+        # print to file
+        if data['match_status'] == string_matcher.MATCH:
+            writer.writerow( [ 'MATCH', 
+                               '100', 
+                               encode_data['org_name'], 
+                               encode_data['org_name'], 
+                               encode_data['line'], encode_data['year'] ] ) 
+        elif data['match_status'] == string_matcher.PARTIAL_MATCH:
+            for org in get_sort_ratio_candidates(data['match_candidates']):
+                writer.writerow( [ 'PARTIAL', 
+                                   int(data['match_candidates'][org] * 100.0), 
+                                   encode_data['org_name'], 
+                                   org.encode('utf-8'),
+                                   encode_data['line'], encode_data['year'] ] ) 
+        else:
+            writer.writerow( [ 'X', 
+                               '0', 
+                               encode_data['org_name'], 
+                               '',
+                               encode_data['line'], encode_data['year'] ] ) 
+
+    csvfile.close();
 
 def main():
     oo_map = oid_org_map.build_oid_org_map(OID_TREE_JSON)
@@ -195,7 +223,7 @@ def main():
     for budget in BUDGET_CSV:
         result = check_budget_org(budget, org_matcher)
         #pprint.pprint(result)
-        show_check_result(result)
+        show_check_result(budget, result)
 
 
 if __name__ == '__main__':
