@@ -13,7 +13,7 @@ this project is in alpha
 
 * clone project
 
-        $ git clone https://github.com/g0v/addressbook.git
+        $ git clone https://github.com/g0v/addressbook.parser.git
 
 * list all government tree
 
@@ -25,13 +25,13 @@ this project is in alpha
 
         $ open demo/front-end.html
 
-    * [demo link at github io](http://g0v.github.io/addressbook/)
+    * [demo link at github io](http://g0v.github.io/addressbook.parser/)
 
 ## Documents
 
 * [政府公開通訊錄](http://hack.g0v.tw/kuansim/g6v6MpyacFb)
 * [我打了電話](http://hack.g0v.tw/kuansim/HM8MBTIU8Pp)
-* [Wiki of g0v/addressbook](https://github.com/g0v/addressbook/wiki)
+* [Wiki of g0v/addressbook](https://github.com/g0v/addressbook.parser/wiki)
 
 ## Raw data
 
